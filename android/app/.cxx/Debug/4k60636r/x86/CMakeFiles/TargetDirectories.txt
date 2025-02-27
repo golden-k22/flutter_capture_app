@@ -1,0 +1,2 @@
+D:/Ahad/photo_pdf/android/app/.cxx/Debug/4k60636r/x86/CMakeFiles/edit_cache.dir
+D:/Ahad/photo_pdf/android/app/.cxx/Debug/4k60636r/x86/CMakeFiles/rebuild_cache.dir

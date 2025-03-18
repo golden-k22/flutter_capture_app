@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:photo_pdf/constants.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class PaymentPage extends StatefulWidget {
   const PaymentPage({Key? key}) : super(key: key);
@@ -16,6 +19,64 @@ class _PaymentState extends State<PaymentPage> {
       TextEditingController(text: '5');
   final TextEditingController _totalPurchaseController =
       TextEditingController();
+
+  Map<String, dynamic>? paymentIntent;
+
+  Future<int> makePayment() async {
+    try {
+      paymentIntent = await createPaymentIntent("20.00", "USD");
+
+      // Initialize the payment sheet
+      await Stripe.instance.initPaymentSheet(
+        paymentSheetParameters: SetupPaymentSheetParameters(
+          paymentIntentClientSecret: paymentIntent!["client_secret"],
+          style: ThemeMode.light,
+          merchantDisplayName: "Your Business Name",
+        ),
+      );
+
+      // Present the payment sheet
+      await Stripe.instance.presentPaymentSheet();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Payment Successful!")),
+      );
+      return 1;
+    } catch (e) {
+      print("Error: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Payment Failed")),
+      );
+      return 0;
+    }
+  }
+
+  Future<Map<String, dynamic>> createPaymentIntent(
+      String amount, String currency) async {
+    try {
+      // Convert amount to cents
+      int amountInCents = (double.parse(amount) * 100).toInt();
+
+      // Use Stripe's test secret key (Replace with your own in production)
+      String secretKey = stripeSecretKey;
+      var response = await http.post(
+        Uri.parse("https://api.stripe.com/v1/payment_intents"),
+        headers: {
+          "Authorization": "Bearer $secretKey",
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: {
+          "amount": amountInCents.toString(),
+          "currency": currency,
+          "payment_method_types[]": "card",
+        },
+      );
+      return jsonDecode(response.body);
+    } catch (e) {
+      print("Error creating payment intent: $e");
+      throw Exception("Failed to create payment intent");
+    }
+  }
 
   @override
   void initState() {
@@ -133,11 +194,8 @@ class _PaymentState extends State<PaymentPage> {
                       child: Text('CONFIRM'),
                     ),
                     ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(
-                            context); // Navigate back to the previous page
-                      },
-                      child: Text('PAY'),
+                      onPressed: makePayment,
+                      child: Text("Pay"),
                     ),
                   ],
                 ),

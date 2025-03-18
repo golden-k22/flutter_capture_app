@@ -5,6 +5,7 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:pdf/widgets.dart' as pw;
 import 'payment.dart';
+import 'upload.dart';
 
 class TakePicturePage extends StatefulWidget {
   const TakePicturePage({super.key});
@@ -80,6 +81,22 @@ class TakePicturePageState extends State<TakePicturePage>
     });
   }
 
+  Future<void> selectAndUploadFile() async {
+    if (_pdf == null) {
+      print("No file to upload");
+      return;
+    }
+
+    print("----------uploading--------");
+    try {
+      File file = _pdf!;
+      await DropboxUploader.uploadFileToDropbox(file, '/uploads/file.jpg');
+      print("----------uploaded successfully--------");
+    } catch (e) {
+      print("Upload failed: $e");
+    }
+  }
+
   void onNextPressed() {
     setState(() {
       switch (stage) {
@@ -104,6 +121,7 @@ class TakePicturePageState extends State<TakePicturePage>
           break;
 
         case ActionStage.send:
+          selectAndUploadFile();
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => PaymentPage()),

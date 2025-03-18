@@ -10,7 +10,6 @@ import 'package:photo_pdf/pages/signup.dart';
 class SigninPage extends StatefulWidget {
   const SigninPage({super.key});
 
-
   @override
   _SigninPageState createState() => _SigninPageState();
 }
@@ -28,9 +27,7 @@ class _SigninPageState extends State<SigninPage> {
     );
   }
 
-  void goForgotPassword() {
-   
-  }
+  void goForgotPassword() {}
 
   void runSignin() async {
     // setState(() {
@@ -59,7 +56,8 @@ class _SigninPageState extends State<SigninPage> {
     //   ),
     // );
 
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => TakePicturePage()));
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (_) => TakePicturePage()));
   }
 
   @override
